@@ -46,6 +46,8 @@ library
   exposed-modules:
     THInstanceExists
   build-depends:
+    -- control:
+    transformers,
     -- debugging:
     loch-th == 0.2.*,
     placeholders == 0.1.*,
@@ -99,6 +101,8 @@ test-suite th-instance-exists-htf-test-suite
     -threaded
     "-with-rtsopts=-N"
   build-depends:
+    -- control:
+    transformers,
     -- testing:
     quickcheck-instances,
     QuickCheck-GenT == 0.1.*,

@@ -7,6 +7,7 @@ where
 
 import THInstanceExists.Prelude.Basic
 import THInstanceExists.Prelude.TH
+import Control.Monad.Trans.Writer
 
 
 reifyInstances' :: Name -> [Type] -> Q [InstanceDec]
@@ -29,9 +30,14 @@ isAProperInstanceDec tl = \case
     t -> $bug $ "Unexpected instance head type: " <> show t
   d -> fail $ "Not an instance dec: " <> show d
   where
-    analyze c n ht = and <$> mapM analyzePair (zip tl $ reverse $ unapplyType ht)
+    analyze c n ht = 
+      fmap getAll $ execWriterT $ 
+      mapM_ analyzePair $ zip tl $ reverse $ unapplyType ht
       where
-        analyzePair (argT, headT) = $notImplemented
+        analyzePair = \case
+          (AppT al ar, AppT hl hr) -> analyzePair (al, ar) *> analyzePair (hl, hr)
+          (a, VarT n) -> $(todo "Analyze context by var name")
+          _ -> return ()
 
 unapplyType :: Type -> [Type]
 unapplyType = \case
