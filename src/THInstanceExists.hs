@@ -1,52 +1,68 @@
 module THInstanceExists
 (
-  reifyInstances',
-  isInstance',
+  reifyProperInstances,
+  isProperInstance,
+  typesSatisfyDecConstraints,
 )
 where
 
 import THInstanceExists.Prelude.Basic
 import THInstanceExists.Prelude.TH
-import Control.Monad.Trans.Writer
+import qualified Data.Map as Map
 
-
-reifyInstances' :: Name -> [Type] -> Q [InstanceDec]
-reifyInstances' n tl = do
-  reify n >>= \case
-    ClassI d idl -> case d of
-      ClassD c _ vl _ _ -> $notImplemented
-      d -> $bug $ "Unexpected declaration: " <> show d
-    i -> fail $ "Not a class name: " <> show n
-
-isInstance' :: Name -> [Type] -> Q Bool
-isInstance' n tl = not . null <$> reifyInstances' n tl
 
 -- |
--- Analyze the provided types to satisfy the contexts of the instance dec.
-isAProperInstanceDec :: [Type] -> InstanceDec -> Q Bool
-isAProperInstanceDec tl = \case
-  InstanceD c it _ -> case it of
-    AppT (ConT n) ht -> analyze c n ht
-    t -> $bug $ "Unexpected instance head type: " <> show t
+-- Same as 'reifyInstances', but also checks the constraints.
+reifyProperInstances :: Name -> [Type] -> Q [InstanceDec]
+reifyProperInstances n tl = 
+  reifyInstances n tl >>= filterM (typesSatisfyDecConstraints tl)
+
+-- |
+-- Same as 'isInstance', but also checks the constraints.
+isProperInstance :: Name -> [Type] -> Q Bool
+isProperInstance n tl = 
+  not . null <$> reifyProperInstances n tl
+
+-- |
+-- Analyze the constraints of the provided instance dec to be satisfied by types.
+-- 
+-- Note that this function does not analyze the equality constraints (@F a ~ Bool@).
+-- It simply considers them to be true.
+typesSatisfyDecConstraints :: [Type] -> InstanceDec -> Q Bool
+typesSatisfyDecConstraints tl = \case
+  InstanceD c it _ -> let
+    ([ConT n], htl) = splitAt 1 $ reverse $ unapplyType it
+    in analyze c n htl
   d -> fail $ "Not an instance dec: " <> show d
   where
-    analyze c n ht = 
-      fmap getAll $ execWriterT $ 
-      mapM_ analyzePair $ zip tl $ reverse $ unapplyType ht
+    analyze c n htl = and <$> mapM analyzeConstraint c
       where
-        analyzePair = \case
-          (AppT al ar, AppT hl hr) -> analyzePair (al, ar) *> analyzePair (hl, hr)
-          (a, VarT n) -> $(todo "Analyze context by var name")
-          _ -> return ()
+        actualTypeByVarName = \n ->
+          Map.lookup n m ?: 
+          ($bug $ "Unexpected key: " <> show n <> ", in a map: " <> show m)
+          where
+            m = Map.fromList $ concat $ map accRecords $ zip tl htl
+              where
+                accRecords = \case
+                  (AppT al ar, AppT hl hr) -> accRecords (al, hl) ++ accRecords (ar, hr)
+                  (a, VarT n) -> [(n, a)]
+                  (a, h) | a /= h -> fail $ "Unmatching types: " <> show a <> ", " <> show h
+                  _ -> []
+        analyzeConstraint = \case
+          EqualP _ _ -> return True
+          ClassP n tl -> do
+            let tl' = map (replaceTypeVars actualTypeByVarName) tl
+            isProperInstance n tl'
 
 unapplyType :: Type -> [Type]
 unapplyType = \case
   AppT l r -> r : unapplyType l
   t -> [t]
 
--- | Deeply traverse the type signature.
-traverseType_ :: (Applicative m) => (Type -> m ()) -> Type -> m ()
-traverseType_ f = \case
-  AppT l r -> traverseType_ f l *> traverseType_ f r
-  t -> f t
+-- | Deeply traverse the type signature and replace all vars in it.
+replaceTypeVars :: (Name -> Type) -> Type -> Type
+replaceTypeVars f = \case
+  AppT l r -> AppT (replaceTypeVars f l) (replaceTypeVars f r)
+  VarT n -> f n
+  t -> t
 

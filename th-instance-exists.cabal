@@ -5,7 +5,7 @@ version:
 synopsis:
   Fixed versions of instances reification functions
 description:
-  Provides a fixed version of 'reifyInstances' and 'isInstance' as per
+  Provides fixed versions of 'reifyInstances' and 'isInstance' as per
   the following ghc issue:
   <https://ghc.haskell.org/trac/ghc/ticket/7066>.
 category:
@@ -46,8 +46,8 @@ library
   exposed-modules:
     THInstanceExists
   build-depends:
-    -- control:
-    transformers,
+    -- data:
+    containers,
     -- debugging:
     loch-th == 0.2.*,
     placeholders == 0.1.*,
@@ -101,8 +101,8 @@ test-suite th-instance-exists-htf-test-suite
     -threaded
     "-with-rtsopts=-N"
   build-depends:
-    -- control:
-    transformers,
+    -- data:
+    containers,
     -- testing:
     quickcheck-instances,
     QuickCheck-GenT == 0.1.*,
