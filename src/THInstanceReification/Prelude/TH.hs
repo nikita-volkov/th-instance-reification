@@ -1,4 +1,4 @@
-module THInstanceExists.Prelude.TH
+module THInstanceReification.Prelude.TH
 (
   module Exports,
 
@@ -7,7 +7,7 @@ module THInstanceExists.Prelude.TH
 )
 where
 
-import THInstanceExists.Prelude.Basic
+import THInstanceReification.Prelude.Basic
 import Language.Haskell.TH as Exports
 
 

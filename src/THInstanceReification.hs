@@ -1,4 +1,4 @@
-module THInstanceExists
+module THInstanceReification
 (
   reifyProperInstances,
   isProperInstance,
@@ -6,8 +6,8 @@ module THInstanceExists
 )
 where
 
-import THInstanceExists.Prelude.Basic
-import THInstanceExists.Prelude.TH
+import THInstanceReification.Prelude.Basic
+import THInstanceReification.Prelude.TH
 import qualified Data.Map as Map
 
 

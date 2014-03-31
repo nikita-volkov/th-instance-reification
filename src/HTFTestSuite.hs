@@ -1,9 +1,9 @@
 {-# OPTIONS_GHC -F -pgmF htfpp #-}
 
 import Test.Framework
-import THInstanceExists.Prelude.Basic
-import THInstanceExists.Prelude.TH
-import THInstanceExists
+import THInstanceReification.Prelude.Basic
+import THInstanceReification.Prelude.TH
+import THInstanceReification
 
 main = htfMain $ htf_thisModulesTests
 

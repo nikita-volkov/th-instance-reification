@@ -1,5 +1,5 @@
 name:
-  th-instance-exists
+  th-instance-reification
 version:
   0.1.0
 synopsis:
@@ -11,9 +11,9 @@ description:
 category:
   Template Haskell
 homepage:
-  https://github.com/nikita-volkov/th-instance-exists 
+  https://github.com/nikita-volkov/th-instance-reification 
 bug-reports:
-  https://github.com/nikita-volkov/th-instance-exists/issues 
+  https://github.com/nikita-volkov/th-instance-reification/issues 
 author:
   Nikita Volkov <nikita.y.volkov@mail.ru>
 maintainer:
@@ -34,17 +34,17 @@ source-repository head
   type:
     git
   location:
-    git://github.com/nikita-volkov/th-instance-exists.git
+    git://github.com/nikita-volkov/th-instance-reification.git
 
 
 library
   hs-source-dirs:
     src
   other-modules:
-    THInstanceExists.Prelude.Basic
-    THInstanceExists.Prelude.TH
+    THInstanceReification.Prelude.Basic
+    THInstanceReification.Prelude.TH
   exposed-modules:
-    THInstanceExists
+    THInstanceReification
   build-depends:
     -- data:
     containers,
@@ -90,7 +90,7 @@ library
     Haskell2010
 
 
-test-suite th-instance-exists-htf-test-suite
+test-suite th-instance-reification-htf-test-suite
   type:             
     exitcode-stdio-1.0
   hs-source-dirs:   

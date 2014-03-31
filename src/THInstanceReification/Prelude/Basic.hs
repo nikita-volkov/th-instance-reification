@@ -1,4 +1,4 @@
-module THInstanceExists.Prelude.Basic
+module THInstanceReification.Prelude.Basic
 ( 
   module Exports,
 
@@ -63,7 +63,7 @@ traceM s = trace s $ return ()
 
 bug = [e| $(Debug.Trace.LocationTH.failure) . (msg <>) |]
   where
-    msg = "A \"th-instance-exists\" package bug: " :: String
+    msg = "A \"th-instance-reification\" package bug: " :: String
 
 bottom = [e| $bug "Bottom evaluated" |]
 
