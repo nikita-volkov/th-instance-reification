@@ -1,3 +1,7 @@
+-- |
+-- Fixed versions of 'reifyInstances' and 'isInstance' as per
+-- the following ghc issue:
+-- <https://ghc.haskell.org/trac/ghc/ticket/7066>.
 module THInstanceReification
 (
   reifyProperInstances,
@@ -24,7 +28,8 @@ isProperInstance n tl =
   not . null <$> reifyProperInstances n tl
 
 -- |
--- Analyze the constraints of the provided instance dec to be satisfied by types.
+-- Analyze the constraints of the provided instance dec to be satisfied 
+-- by the provided types.
 -- 
 -- Note that this function does not analyze the equality constraints (@F a ~ Bool@).
 -- It simply considers them to be true.

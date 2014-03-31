@@ -101,14 +101,14 @@ test-suite th-instance-reification-htf-test-suite
     -threaded
     "-with-rtsopts=-N"
   build-depends:
-    -- data:
-    containers,
     -- testing:
     quickcheck-instances,
     QuickCheck-GenT == 0.1.*,
     QuickCheck,
     HUnit,
     HTF == 0.11.*,
+    -- data:
+    containers,
     -- debugging:
     loch-th == 0.2.*,
     placeholders == 0.1.*,
