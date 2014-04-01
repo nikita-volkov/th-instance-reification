@@ -55,6 +55,9 @@ import Debug.Trace as Exports
 -- placeholders
 import Development.Placeholders as Exports
 
+-- list-extras
+import Data.List.Extras as Exports
+
 
 import qualified Debug.Trace.LocationTH
 

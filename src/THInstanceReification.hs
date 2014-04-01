@@ -35,23 +35,27 @@ isProperInstance n tl =
 -- It simply considers them to be true.
 typesSatisfyDecConstraints :: [Type] -> InstanceDec -> Q Bool
 typesSatisfyDecConstraints tl = \case
-  InstanceD c it _ -> let
-    ([ConT n], htl) = splitAt 1 $ reverse $ unapplyType it
-    in analyze c n htl
+  InstanceD c it _ -> do
+    let ([ConT n], htl) = splitAt 1 $ reverse $ unapplyType it
+    maybe 
+      (fail $ "Unmatching amounts of types: " <> show tl <> ", " <> show htl)
+      (analyze c n)
+      (pair tl htl)
   d -> fail $ "Not an instance dec: " <> show d
   where
-    analyze c n htl = and <$> mapM analyzeConstraint c
+    analyze c n pl = and <$> mapM analyzeConstraint c
       where
         actualTypeByVarName = \n ->
           Map.lookup n m ?: 
-          ($bug $ "Unexpected key: " <> show n <> ", in a map: " <> show m)
+          ($bug $ "Unexpected key: " <> show n <> ", in a map: " <> show m <> 
+                  ", from a list: " <> show tl)
           where
-            m = Map.fromList $ concat $ map accRecords $ zip tl htl
+            m = Map.fromList $ concat $ map accRecords $ pl
               where
                 accRecords = \case
                   (AppT al ar, AppT hl hr) -> accRecords (al, hl) ++ accRecords (ar, hr)
                   (a, VarT n) -> [(n, a)]
-                  (a, h) | a /= h -> fail $ "Unmatching types: " <> show a <> ", " <> show h
+                  (a, h) | a /= h -> $bug $ "Unmatching types: " <> show a <> ", " <> show h
                   _ -> []
         analyzeConstraint = \case
           EqualP _ _ -> return True
