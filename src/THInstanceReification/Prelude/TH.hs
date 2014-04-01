@@ -9,6 +9,7 @@ where
 
 import THInstanceReification.Prelude.Basic
 import Language.Haskell.TH as Exports
+import Language.Haskell.TH.ExpandSyns as Exports
 
 
 purify :: Q a -> a

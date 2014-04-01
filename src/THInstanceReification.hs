@@ -37,10 +37,12 @@ typesSatisfyDecConstraints :: [Type] -> InstanceDec -> Q Bool
 typesSatisfyDecConstraints tl = \case
   InstanceD c it _ -> do
     let ([ConT n], htl) = splitAt 1 $ reverse $ unapplyType it
+    etl <- mapM expandSyns tl
+    ehtl <- mapM expandSyns htl
     maybe 
-      (fail $ "Unmatching amounts of types: " <> show tl <> ", " <> show htl)
+      (fail $ "Unmatching amounts of types: " <> show etl <> ", " <> show ehtl)
       (analyze c n)
-      (pair tl htl)
+      (pair etl ehtl)
   d -> fail $ "Not an instance dec: " <> show d
   where
     analyze c n pl = and <$> mapM analyzeConstraint c

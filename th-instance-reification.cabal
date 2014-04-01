@@ -51,8 +51,11 @@ library
     -- debugging:
     loch-th == 0.2.*,
     placeholders == 0.1.*,
-    -- general:
+    -- template-haskell:
+    th-expand-syns == 0.3.*,
     template-haskell,
+    -- general:
+    list-extras == 0.4.*,
     base >= 4.5 && < 5
   default-extensions:
     Arrows
@@ -112,8 +115,11 @@ test-suite th-instance-reification-htf-test-suite
     -- debugging:
     loch-th == 0.2.*,
     placeholders == 0.1.*,
-    -- general:
+    -- template-haskell:
+    th-expand-syns == 0.3.*,
     template-haskell,
+    -- general:
+    list-extras == 0.4.*,
     base >= 4.5 && < 5
   default-extensions:
     Arrows
