@@ -35,31 +35,52 @@ isProperInstance n tl =
 -- It simply considers them to be true.
 typesSatisfyDecConstraints :: [Type] -> InstanceDec -> Q Bool
 typesSatisfyDecConstraints tl = \case
-  InstanceD c it _ -> do
-    let ([ConT n], htl) = splitAt 1 $ reverse $ unapplyType it
-    etl <- mapM expandSyns tl
-    ehtl <- mapM expandSyns htl
+  InstanceD context instanceType _ -> do
+    let ([ConT n], htl) = splitAt 1 $ reverse $ unapplyType instanceType
+    -- Expand type synonyms in type signatures, 
+    -- using 'expandSyns' from the "th-expand-syns" library:
+    expandedTypes <- mapM expandSyns tl
+    expendedInstanceTypes <- mapM expandSyns htl
     maybe 
-      (fail $ "Unmatching amounts of types: " <> show etl <> ", " <> show ehtl)
-      (analyze c n)
-      (pair etl ehtl)
+      (fail $ "Unmatching amounts of types: " <> show expandedTypes <> ", " <> 
+              show expendedInstanceTypes)
+      (analyze context)
+      -- 'pair' is a safe version of 'zip' from the "list-extras" library,
+      -- which returns 'Nothing', when lists differ in size.
+      (pair expandedTypes expendedInstanceTypes)
   d -> fail $ "Not an instance dec: " <> show d
   where
-    analyze c n pl = and <$> mapM analyzeConstraint c
+    -- |
+    -- Test, whether a list of associations from tested types to types in instance head
+    -- satisfies the given context.
+    analyze :: Cxt -> [(Type, Type)] -> Q Bool
+    analyze context typeAssocs = and <$> mapM analyzePredicate context
       where
+        -- |
+        -- A partial function, 
+        -- which returns a tested type by a variable name.
+        actualTypeByVarName :: Name -> Type
         actualTypeByVarName = \n ->
           Map.lookup n m ?: 
-          ($bug $ "Unexpected key: " <> show n <> ", in a map: " <> show m <> 
-                  ", from a list: " <> show tl)
+          ($bug $ "Unexpected key: " <> show n <> ", in a map: " <> show m)
           where
-            m = Map.fromList $ concat $ map accRecords $ pl
+            -- A memoization cache.
+            m = Map.fromList $ concat $ map accRecords $ typeAssocs
               where
+                -- Parallelly expand all associations down to type variables
+                -- of instance head,
+                -- producing a list of associations of names of those variables
+                -- to tested types.
                 accRecords = \case
                   (AppT al ar, AppT hl hr) -> accRecords (al, hl) ++ accRecords (ar, hr)
                   (a, VarT n) -> [(n, a)]
                   (a, h) | a /= h -> $bug $ "Unmatching types: " <> show a <> ", " <> show h
                   _ -> []
-        analyzeConstraint = \case
+        -- |
+        -- Test a predicate by substituting all type vars with associated
+        -- tested types.
+        analyzePredicate :: Pred -> Q Bool
+        analyzePredicate = \case
           EqualP _ _ -> return True
           ClassP n tl -> do
             let tl' = map (replaceTypeVars actualTypeByVarName) tl

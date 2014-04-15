@@ -1,7 +1,7 @@
 name:
   th-instance-reification
 version:
-  0.1.1
+  0.1.2
 synopsis:
   Fixed versions of instances reification functions
 description:
