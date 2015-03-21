@@ -42,3 +42,36 @@ test_nonExistingInstanceOnMultiParamClass = do
       a <- [t|A|]
       stringE . show =<< isProperInstance ''MultiParamClass [a, int, char]
     )
+
+
+test_compositeTypes = do
+  assertBool $ read $( do
+      t <- [t|(Int, Char, Char)|]
+      stringE . show =<< isProperInstance ''Show [t]
+    )
+
+test_compositeTypesMultiParam = do
+  assertBool $ read $( do
+      t <- [t|(Int, Char, Char)|]
+      int <- [t|Int|]
+      char <- [t|Char|]
+      stringE . show =<< isProperInstance ''MultiParamClass [t, int, char]
+    )
+
+newtype B a = B a deriving (Show)
+
+test_polyTypes = do
+  assertBool $ read $( do
+      t <- [t|(B Char)|]
+      stringE . show =<< isProperInstance ''Show [t]
+    )
+
+type C = (B Int, B Char)
+
+test_synonyms = do
+  assertBool $ read $( do
+      t <- [t|C|]
+      stringE . show =<< isProperInstance ''Show [t]
+    )
+
+
