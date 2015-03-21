@@ -106,10 +106,9 @@ test-suite th-instance-reification-htf-test-suite
   build-depends:
     -- testing:
     quickcheck-instances,
-    QuickCheck-GenT == 0.1.*,
     QuickCheck,
     HUnit,
-    HTF == 0.11.*,
+    HTF == 0.12.*,
     -- data:
     containers,
     -- debugging:
