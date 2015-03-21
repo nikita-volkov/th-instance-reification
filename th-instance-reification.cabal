@@ -100,6 +100,8 @@ test-suite th-instance-reification-htf-test-suite
     src
   main-is:          
     HTFTestSuite.hs
+  other-modules:
+    HTFTestSuite.Prerequisites
   ghc-options:
     -threaded
     "-with-rtsopts=-N"

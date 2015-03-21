@@ -4,11 +4,12 @@ import Test.Framework
 import THInstanceReification.Prelude.Basic
 import THInstanceReification.Prelude.TH
 import THInstanceReification
+import HTFTestSuite.Prerequisites
+
 
 main = htfMain $ htf_thisModulesTests
 
 
-data A = A
 
 test_existingInstance = do
   assertBool $ read $( do
@@ -23,10 +24,6 @@ test_nonExistingInstance = do
       r <- isProperInstance ''Show [t]
       stringE $ show $ r
     )
-
-
-class MultiParamClass a b c
-instance (Eq a) => MultiParamClass a Int Char
 
 test_existingInstanceOnMultiParamClass = do
   assertBool $ read $( do
@@ -58,15 +55,12 @@ test_compositeTypesMultiParam = do
       stringE . show =<< isProperInstance ''MultiParamClass [t, int, char]
     )
 
-newtype B a = B a deriving (Show)
 
 test_polyTypes = do
   assertBool $ read $( do
       t <- [t|(B Char)|]
       stringE . show =<< isProperInstance ''Show [t]
     )
-
-type C = (B Int, B Char)
 
 test_synonyms = do
   assertBool $ read $( do
