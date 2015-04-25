@@ -1,7 +1,7 @@
 name:
   th-instance-reification
 version:
-  0.1.3
+  0.1.4
 synopsis:
   Fixed versions of instances reification functions
 description:
@@ -47,16 +47,16 @@ library
     THInstanceReification
   build-depends:
     -- data:
-    containers,
+    containers >= 0.4 && < 0.6,
     -- debugging:
     loch-th == 0.2.*,
     placeholders == 0.1.*,
     -- template-haskell:
     th-expand-syns == 0.3.*,
-    template-haskell,
+    template-haskell < 2.11,
     -- general:
     list-extras == 0.4.*,
-    base >= 4.5 && < 5
+    base >= 4.6 && < 5
   default-extensions:
     Arrows
     BangPatterns
@@ -107,9 +107,6 @@ test-suite th-instance-reification-htf-test-suite
     "-with-rtsopts=-N"
   build-depends:
     -- testing:
-    quickcheck-instances,
-    QuickCheck,
-    HUnit,
     HTF == 0.12.*,
     -- data:
     containers,
@@ -117,11 +114,11 @@ test-suite th-instance-reification-htf-test-suite
     loch-th == 0.2.*,
     placeholders == 0.1.*,
     -- template-haskell:
-    th-expand-syns == 0.3.*,
+    th-expand-syns,
     template-haskell,
     -- general:
-    list-extras == 0.4.*,
-    base >= 4.5 && < 5
+    list-extras,
+    base
   default-extensions:
     Arrows
     BangPatterns
