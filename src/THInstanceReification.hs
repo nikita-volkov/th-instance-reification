@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 -- |
 -- Fixed versions of 'reifyInstances' and 'isInstance' as per
 -- the following ghc issue:
@@ -81,10 +82,18 @@ typesSatisfyDecConstraints tl = \case
         -- tested types.
         analyzePredicate :: Pred -> Q Bool
         analyzePredicate = \case
+#if MIN_VERSION_template_haskell(2,10,0)
+          AppT (AppT EqualityT _) _ -> return True
+          AppT (ConT n) t -> do
+            let t' = replaceTypeVars actualTypeByVarName t
+            isProperInstance n [t']
+          _ -> return True
+#else
           EqualP _ _ -> return True
           ClassP n tl -> do
             let tl' = map (replaceTypeVars actualTypeByVarName) tl
             isProperInstance n tl'
+#endif
 
 unapplyType :: Type -> [Type]
 unapplyType = \case
