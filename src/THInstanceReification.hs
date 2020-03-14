@@ -14,36 +14,38 @@ where
 import THInstanceReification.Prelude.Basic
 import THInstanceReification.Prelude.TH
 import qualified Data.Map as Map
+import Control.Monad
+import Data.List.Extras
 
 
 -- |
 -- Same as 'reifyInstances', but also checks the constraints.
 reifyProperInstances :: Name -> [Type] -> Q [InstanceDec]
-reifyProperInstances n tl = 
+reifyProperInstances n tl =
   reifyInstances n tl >>= filterM (typesSatisfyDecConstraints tl)
 
 -- |
 -- Same as 'isInstance', but also checks the constraints.
 isProperInstance :: Name -> [Type] -> Q Bool
-isProperInstance n tl = 
+isProperInstance n tl =
   not . null <$> reifyProperInstances n tl
 
 -- |
--- Analyze the constraints of the provided instance dec to be satisfied 
+-- Analyze the constraints of the provided instance dec to be satisfied
 -- by the provided types.
--- 
+--
 -- Note that this function does not analyze the equality constraints (@F a ~ Bool@).
 -- It simply considers them to be true.
 typesSatisfyDecConstraints :: [Type] -> InstanceDec -> Q Bool
 typesSatisfyDecConstraints tl = \case
-  InstanceD context instanceType _ -> do
+  InstanceD _ context instanceType _ -> do
     let ([ConT n], htl) = splitAt 1 $ reverse $ unapplyType instanceType
-    -- Expand type synonyms in type signatures, 
+    -- Expand type synonyms in type signatures,
     -- using 'expandSyns' from the "th-expand-syns" library:
     expandedTypes <- mapM expandSyns tl
     expendedInstanceTypes <- mapM expandSyns htl
-    maybe 
-      (fail $ "Unmatching amounts of types: " <> show expandedTypes <> ", " <> 
+    maybe
+      (fail $ "Unmatching amounts of types: " <> show expandedTypes <> ", " <>
               show expendedInstanceTypes)
       (analyze context)
       -- 'pair' is a safe version of 'zip' from the "list-extras" library,
@@ -58,11 +60,11 @@ typesSatisfyDecConstraints tl = \case
     analyze context typeAssocs = and <$> mapM analyzePredicate context
       where
         -- |
-        -- A partial function, 
+        -- A partial function,
         -- which returns a tested type by a variable name.
         actualTypeByVarName :: Name -> Type
         actualTypeByVarName = \n ->
-          Map.lookup n m ?: 
+          Map.lookup n m ?:
           ($bug $ "Unexpected key: " <> show n <> ", in a map: " <> show m)
           where
             -- A memoization cache.

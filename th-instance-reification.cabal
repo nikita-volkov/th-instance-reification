@@ -11,9 +11,9 @@ description:
 category:
   Template Haskell
 homepage:
-  https://github.com/nikita-volkov/th-instance-reification 
+  https://github.com/nikita-volkov/th-instance-reification
 bug-reports:
-  https://github.com/nikita-volkov/th-instance-reification/issues 
+  https://github.com/nikita-volkov/th-instance-reification/issues
 author:
   Nikita Volkov <nikita.y.volkov@mail.ru>
 maintainer:
@@ -47,15 +47,12 @@ library
     THInstanceReification
   build-depends:
     -- data:
-    containers >= 0.4 && < 0.6,
-    -- debugging:
-    loch-th == 0.2.*,
-    placeholders == 0.1.*,
+    containers,
     -- template-haskell:
-    th-expand-syns == 0.3.*,
-    template-haskell < 2.11,
+    th-expand-syns,
+    template-haskell,
     -- general:
-    list-extras == 0.4.*,
+    list-extras,
     base >= 4.6 && < 5
   default-extensions:
     Arrows
@@ -76,7 +73,6 @@ library
     LiberalTypeSynonyms
     MultiParamTypeClasses
     MultiWayIf
-    NoImplicitPrelude
     NoMonomorphismRestriction
     OverloadedStrings
     PatternGuards
@@ -94,11 +90,11 @@ library
 
 
 test-suite th-instance-reification-htf-test-suite
-  type:             
+  type:
     exitcode-stdio-1.0
-  hs-source-dirs:   
+  hs-source-dirs:
     src
-  main-is:          
+  main-is:
     HTFTestSuite.hs
   other-modules:
     HTFTestSuite.Prerequisites
