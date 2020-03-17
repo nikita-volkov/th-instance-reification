@@ -1,4 +1,4 @@
-module HTFTestSuite.Prerequisites where
+module Main.Prerequisites where
 
 import Prelude
 

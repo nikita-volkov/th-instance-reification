@@ -36,7 +36,7 @@ isProperInstance n tl =
 -- It simply considers them to be true.
 typesSatisfyDecConstraints :: [Type] -> InstanceDec -> Q Bool
 typesSatisfyDecConstraints tl = \case
-  InstanceD context instanceType _ -> do
+  InstanceD _ context instanceType _ -> do
     let ([ConT n], htl) = splitAt 1 $ reverse $ unapplyType instanceType
     -- Expand type synonyms in type signatures, 
     -- using 'expandSyns' from the "th-expand-syns" library:
@@ -63,7 +63,7 @@ typesSatisfyDecConstraints tl = \case
         actualTypeByVarName :: Name -> Type
         actualTypeByVarName = \n ->
           Map.lookup n m ?: 
-          ($bug $ "Unexpected key: " <> show n <> ", in a map: " <> show m)
+          (error $ "Unexpected key: " <> show n <> ", in a map: " <> show m)
           where
             -- A memoization cache.
             m = Map.fromList $ concat $ map accRecords $ typeAssocs
@@ -75,7 +75,7 @@ typesSatisfyDecConstraints tl = \case
                 accRecords = \case
                   (AppT al ar, AppT hl hr) -> accRecords (al, hl) ++ accRecords (ar, hr)
                   (a, VarT n) -> [(n, a)]
-                  (a, h) | a /= h -> $bug $ "Unmatching types: " <> show a <> ", " <> show h
+                  (a, h) | a /= h -> error $ "Unmatching types: " <> show a <> ", " <> show h
                   _ -> []
         -- |
         -- Test a predicate by substituting all type vars with associated
