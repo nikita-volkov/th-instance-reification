@@ -40,14 +40,14 @@ typesSatisfyDecConstraints tl = \case
     -- Expand type synonyms in type signatures, 
     -- using 'expandSyns' from the "th-expand-syns" library:
     expandedTypes <- mapM expandSyns tl
-    expendedInstanceTypes <- mapM expandSyns htl
+    expandedInstanceTypes <- mapM expandSyns htl
     maybe 
       (fail $ "Unmatching amounts of types: " <> show expandedTypes <> ", " <> 
-              show expendedInstanceTypes)
+              show expandedInstanceTypes)
       (analyze context)
       -- 'pair' is a safe version of 'zip' from the "list-extras" library,
       -- which returns 'Nothing', when lists differ in size.
-      (pair expandedTypes expendedInstanceTypes)
+      (pair expandedTypes expandedInstanceTypes)
   d -> fail $ "Not an instance dec: " <> show d
   where
     -- |
