@@ -14,6 +14,11 @@ import qualified Test.QuickCheck.Property as QuickCheck
 
 
 main = defaultMain $ testGroup "" $ [
+    testCase "Issue #6" $ do
+      assertBool "" $ read $( do
+          r <- isProperInstance ''Monoid [VarT (mkName "v")]
+          stringE $ show $ r
+        ),
     testCase "existingInstance" $ do
       assertBool "" $ read $( do
           t <- [t| (Int, Int) |]
