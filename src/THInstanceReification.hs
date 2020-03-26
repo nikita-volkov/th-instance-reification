@@ -59,10 +59,8 @@ typesSatisfyDecConstraints tl = \case
         -- |
         -- A partial function, 
         -- which returns a tested type by a variable name.
-        actualTypeByVarName :: Name -> Type
-        actualTypeByVarName = \n ->
-          Map.lookup n m ?: 
-          (error $ "Unexpected key: " <> show n <> ", in a map: " <> show m)
+        actualTypeByVarName :: Name -> Maybe Type
+        actualTypeByVarName = \n -> Map.lookup n m
           where
             -- A memoization cache.
             m = Map.fromList $ concat $ map accRecords $ typeAssocs
@@ -74,7 +72,6 @@ typesSatisfyDecConstraints tl = \case
                 accRecords = \case
                   (AppT al ar, AppT hl hr) -> accRecords (al, hl) ++ accRecords (ar, hr)
                   (a, VarT n) -> [(n, a)]
-                  (a, h) | a /= h -> error $ "Unmatching types: " <> show a <> ", " <> show h
                   _ -> []
         -- |
         -- Test a predicate by substituting all type vars with associated
@@ -82,9 +79,10 @@ typesSatisfyDecConstraints tl = \case
         analyzePredicate :: Pred -> Q Bool
         analyzePredicate = \case
           AppT (AppT EqualityT _) _ -> return True
-          AppT (ConT n) t -> do
-            let t' = replaceTypeVars actualTypeByVarName t
-            isProperInstance n [t']
+          AppT (ConT n) t ->
+            case replaceTypeVars actualTypeByVarName t of
+              Just t' -> isProperInstance n [t']
+              _ -> return False
           _ -> return True
 
 unapplyType :: Type -> [Type]
@@ -93,9 +91,9 @@ unapplyType = \case
   t -> [t]
 
 -- | Deeply traverse the type signature and replace all vars in it.
-replaceTypeVars :: (Name -> Type) -> Type -> Type
+replaceTypeVars :: (Name -> Maybe Type) -> Type -> Maybe Type
 replaceTypeVars f = \case
-  AppT l r -> AppT (replaceTypeVars f l) (replaceTypeVars f r)
+  AppT l r -> AppT <$> replaceTypeVars f l <*> replaceTypeVars f r
   VarT n -> f n
-  t -> t
+  t -> Just t
 
